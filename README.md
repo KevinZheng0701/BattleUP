@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-### Server Setup
+### Backend Setup
 
 6. **Navigate to the `backend` folder**
 
@@ -58,15 +58,15 @@ python -m venv venv
 
 - On macOS/Linux:
 
-```bash
-source venv/bin/activate
-```
+  ```bash
+  source venv/bin/activate
+  ```
 
 - On Windows:
 
-```bash
-venv\Scripts\activate
-```
+  ```bash
+  venv\Scripts\activate
+  ```
 
 9. **Install backend dependencies**
 
