@@ -20,32 +20,32 @@ cd FitAI
 
 ## Installation
 
-### Frontend Setup
+### Client Setup
 
-3. **Navigate to the `frontend` folder**
+3. **Navigate to the `client` folder**
 
 ```bash
-cd frontend
+cd client
 ```
 
-4. **Install frontend dependencies**
+4. **Install client dependencies**
 
 ```bash
 npm install
 ```
 
-5. **Run the frontend**
+5. **Run the client**
 
 ```bash
 npm run dev
 ```
 
-### Backend Setup
+### Server Setup
 
-6. **Navigate to the `backend` folder**
+6. **Navigate to the `server` folder**
 
 ```bash
-cd backend
+cd server
 ```
 
 7. **Set up python virtual environment (ensure you have python installed)**
@@ -68,13 +68,13 @@ python -m venv venv
   venv\Scripts\activate
   ```
 
-9. **Install backend dependencies**
+9. **Install server dependencies**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-10. **Run the backend**
+10. **Run the server**
 
 ```bash
 python app.py
