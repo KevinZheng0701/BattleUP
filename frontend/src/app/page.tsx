@@ -1,44 +1,45 @@
+"use client";
+
+import MatchSelectorModal from "../components/MatchSelectorModal";
+import InstructionsBoard from "@/components/InstructionsBoard";
+
 export default function HomePage() {
   return (
-    <div className="bg-background text-foreground flex h-screen flex-col items-center bg-gradient-to-b from-[#0e0b16] via-[#4c0033] to-[#1a1a40] text-center font-serif">
-      <h1 className="mt-10 mb-6 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-5xl font-bold text-transparent md:mt-11 md:mb-7 lg:mt-12 lg:mb-8">
-        Battle 💪 Up
-      </h1>
-      <p className="mb-5 w-8/9 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-xl font-light text-transparent md:mb-6 lg:mb-7">
+    <div className="text-foreground flex h-screen flex-col items-center bg-gradient-to-b from-[#0e0b16] via-[#4c0033] to-[#1a1a40] text-center font-serif">
+      <div className="my-5 flex items-center text-5xl font-bold md:mt-11 md:mb-7 lg:mt-12 lg:mb-8">
+        <span className="inline-block bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-2xl text-transparent md:text-3xl lg:text-5xl">
+          💪
+        </span>
+        <h1 className="mx-2 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 bg-clip-text text-4xl text-transparent md:text-5xl lg:text-6xl">
+          Battle Up
+        </h1>
+        <span className="inline-block -scale-x-100 transform bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-2xl text-transparent md:text-3xl lg:text-5xl">
+          💪
+        </span>
+      </div>
+      <p className="mb-5 w-8/9 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-xl font-light text-transparent md:mb-6 md:text-2xl lg:mb-7 lg:text-3xl">
         Challenge people in a real-time push-up battle. Compete, sweat, and win!
       </p>
-      <button className="text-background cursor-fist mb-6 rounded-xl bg-gradient-to-r from-red-700 via-orange-500 to-yellow-300 px-8 py-3 text-lg font-semibold shadow-lg transition-transform duration-300 hover:scale-105 hover:brightness-125 md:mb-8 lg:mb-10">
-        Start Battle
-      </button>
-      <div className="bg-card/25 flex max-w-9/10 flex-col justify-center gap-2 rounded-xl border-2 border-black/50 p-3 shadow-lg md:gap-3 lg:gap-4">
-        <h2 className="text-3xl font-bold">💡 How It Works</h2>
-        <ol>
-          <li className="p-1 md:p-2 lg:p-3">
-            <h3 className="text-xl font-semibold md:text-2xl">
-              1. Join the Arena
-            </h3>
-            <p className="text-muted text-md">
-              Click Start Battle to enter a 1v1 real-time push-up competition.
-            </p>
-          </li>
-          <li className="p-1 md:p-2 lg:p-3">
-            <h3 className="text-xl font-semibold md:text-2xl">
-              2. Get Counted
-            </h3>
-            <p className="text-muted text-md">
-              Your webcam tracks your push-ups using smart AI. No cheating.
-            </p>
-          </li>
-          <li className="p-1 md:p-2 lg:p-3">
-            <h3 className="text-xl font-semibold md:text-2xl">
-              3. Win & Climb
-            </h3>
-            <p className="text-muted text-md">
-              Beat your opponent and claim your spot at the top.
-            </p>
-          </li>
-        </ol>
-      </div>
+      <MatchSelectorModal />
+      <InstructionsBoard
+        title="💡 How It Works"
+        instructions={[
+          {
+            title: "1. Join the Arena",
+            description:
+              "Click Start Battle to enter a 1v1 real-time push-up competition.",
+          },
+          {
+            title: "2. Get Counted",
+            description:
+              "Your webcam tracks your push-ups using smart AI. No cheating.",
+          },
+          {
+            title: "3. Win & Climb",
+            description: "Beat your opponent and claim your spot at the top.",
+          },
+        ]}
+      />
     </div>
   );
 }

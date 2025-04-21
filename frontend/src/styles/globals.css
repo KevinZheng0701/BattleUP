@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -23,6 +24,10 @@ body {
 
 .cursor-fist {
   cursor:
-    url("/boxing-glove-icon.png") 16 16,
+    url("/oncoming-fist-emoji.svg") 16 16,
     pointer;
+}
+
+button {
+  cursor: pointer;
 }

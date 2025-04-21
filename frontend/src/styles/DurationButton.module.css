@@ -1,0 +1,14 @@
+.duration-button {
+  flex: 1;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-family: "Roboto", sans-serif;
+  color: black;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+  border-width: 2px;
+}
+
+.duration-button:hover {
+  background-color: #f59e0b;
+}

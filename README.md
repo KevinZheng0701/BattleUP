@@ -1,21 +1,25 @@
-# Fit AI
+# Battle UP
 
 ## Overview
 
-Fit AI is an application designed to deliver personalized training and meal plans to help users achieve their fitness and health goals. The frontend is built with **Next.js** and **TypeScript**, providing a fast and responsive user experience. The backend, powered by **Python Flask**, runs the AI model to generate tailored recommendations for workouts and meal plans.
+**Battle UP** is a web application designed to connect users through **real-time push-up battles**, transforming fitness into a competitive and social experience.
+
+- 🚀 **Frontend**: Built with **Next.js** and **TypeScript** for a fast and responsive user interface.
+- 🧠 **Backend**: Powered by **Python Flask**, running an AI model (RNN/LSTM) to detect and count completed push-ups accurately.
+- 💪 **Core Feature**: Enables users to challenge friends or strangers in live push-up competitions, with real-time tracking and feedback.
 
 ## Getting Started
 
 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/KevinZheng0701/FitAI.git
+git clone https://github.com/KevinZheng0701/BattleUP.git
 ```
 
 2. **Navigate to the Project Directory**
 
 ```bash
-cd FitAI
+cd BattleUP
 ```
 
 ## Installation
