@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
+import AlertProvider from "@/context/AlertProvider";
+import Alert from "@/components/Alert";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "BattleUP",
-  description: "An online pushup competition.",
+  description: "An online 1v1 pushup competition.",
 };
 
 export default function RootLayout({
@@ -29,7 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AlertProvider>
+          <Alert />
+          {children}
+        </AlertProvider>
       </body>
     </html>
   );

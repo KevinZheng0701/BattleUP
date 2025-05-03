@@ -5,11 +5,13 @@ import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import MatchSelectorModal from "../components/MatchSelectorModal";
 import InstructionsBoard from "@/components/InstructionsBoard";
+import useAlert from "@/context/AlertContext";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   // Assign a random user id when loaded to the page
   useEffect(() => {
@@ -50,11 +52,9 @@ export default function HomePage() {
 
       if (!response.ok) {
         if (response.status === 400) {
-          console.log("Invalid player id.");
-          throw new Error("Invalid player id");
+          showAlert("warning", "Invalid player id. Please refresh.", 3000);
         } else {
-          console.log("Failed to find room.");
-          throw new Error("Failed to find room");
+          showAlert("warning", "Failed to find room. Server error.", 3000);
         }
       }
 
@@ -64,7 +64,7 @@ export default function HomePage() {
       // Redirect to room
       router.push(`/room/${roomId}`);
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   }
 

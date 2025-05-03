@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ModalBackdrop from "./ModalBackdrop";
 import DurationButton from "./DurationButton";
+import useAlert from "@/context/AlertContext";
 
 type MatchSelectorModalProp = {
   onStart: (duration: number) => Promise<void>;
@@ -13,6 +14,7 @@ export default function MatchSelectorModal({
 }: MatchSelectorModalProp) {
   const [durationSelected, setDurationSelected] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { showAlert } = useAlert();
 
   // Select the duration of the match
   function selectMatch(duration: number) {
@@ -28,15 +30,19 @@ export default function MatchSelectorModal({
   // Start the search for a match up
   async function startMatchSearch() {
     if (durationSelected === 0) {
-      alert("Please choose a duration for the match first.");
+      showAlert(
+        "warning",
+        "Please choose a duration for the match first.",
+        3000,
+      );
       return;
     }
     setIsLoading(true);
     try {
       await onStart(durationSelected);
     } catch (error) {
-      console.error("Failed to start match:", error);
-      alert("Failed to find match. Please try again.");
+      console.log(error);
+      showAlert("error", "Failed to find match. Please try again.", 3000);
       setIsLoading(false);
     }
   }

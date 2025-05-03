@@ -1,0 +1,40 @@
+.alert {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  pointer-events: auto;
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 20px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  width: fit-content;
+}
+
+.alert.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.alert-success {
+  background-color: #e6f4ea; /* light green */
+  color: #157347; /* dark green */
+}
+
+.alert-warning {
+  background-color: #fff8e1; /* light yellow */
+  color: #856404; /* dark yellow/brown */
+}
+
+.alert-error {
+  background-color: #f8d7da; /* light red */
+  color: #842029; /* dark red */
+}
+
+.alert-info {
+  background-color: #e7f3fe; /* light blue */
+  color: #084298; /* dark blue */
+}

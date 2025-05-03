@@ -6,6 +6,7 @@ import { io, Socket } from "socket.io-client";
 import VideoCard from "@/components/VideoCard";
 import InstructionsBoard from "@/components/InstructionsBoard";
 import MatchResultModal from "@/components/MatchResultModal";
+import useAlert from "@/context/AlertContext";
 
 type SignalData = {
   room: string;
@@ -44,6 +45,7 @@ export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
   const roomId = params.id as string;
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     let isActive = true;
@@ -96,7 +98,7 @@ export default function RoomPage() {
         setDuration(data.duration);
         return true;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return false;
       }
     }
@@ -163,7 +165,7 @@ export default function RoomPage() {
 
           // Listen for rematch request
           socketRef.current?.on("rematch_request", () => {
-            alert("Rematch requested");
+            showAlert("info", "Rematch requested!");
           });
 
           // Listen for opponent leaving
@@ -183,19 +185,21 @@ export default function RoomPage() {
         if (error instanceof DOMException) {
           if (error.name === "NotAllowedError") {
             if (error.message.includes("dismissed")) {
-              alert(
+              showAlert(
+                "warning",
                 "Please allow camera and microphone access to join the room.",
               );
             } else {
-              alert(
+              showAlert(
+                "warning",
                 "Access to camera and microphone was denied. Please enable it in your browser settings.",
               );
             }
           } else {
-            console.error("Setup connection DOMException error:", error);
+            console.log(error);
           }
         } else {
-          console.error("Setup connection unexpected error:", error);
+          console.log(error);
           router.push("/");
         }
       }
@@ -273,7 +277,7 @@ export default function RoomPage() {
       setTimer(0);
       setGameResult("You Win!");
       socketRef.current?.emit("game_ended", { room: roomId });
-      alert("Opponent has left the room.");
+      showAlert("error", "Opponent has left the room.");
     }
 
     validateAndConnect();
