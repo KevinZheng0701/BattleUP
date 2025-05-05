@@ -2,11 +2,33 @@
 
 ## Overview
 
-**Battle UP** is a web application designed to connect users through **real-time push-up battles**, transforming fitness into a competitive and social experience.
+**Battle UP** is a full-stack web application that gamifies fitness by enabling users to engage in **real-time push-up battles** using live video and AI-based motion tracking. Whether you're challenging a friend or testing your limits against a stranger, Battle UP transforms workouts into a competitive and social experience.
 
-- 🚀 **Frontend**: Built with **Next.js** and **TypeScript** for a fast and responsive user interface.
-- 🧠 **Backend**: Powered by **Python Flask**, running an AI model (RNN/LSTM) to detect and count completed push-ups accurately.
-- 💪 **Core Feature**: Enables users to challenge friends or strangers in live push-up competitions, with real-time tracking and feedback.
+## Problem Statement
+
+Staying motivated during solo workouts can be difficult. Traditional fitness apps often fail to engage users in a meaningful or social way, leading to decreased consistency and motivation.
+
+**Battle UP** addresses this challenge by introducing real-time competition into home fitness. By combining live video streaming with AI-powered motion tracking, the app transforms push-up workouts into exciting, interactive battles — encouraging users to push their limits while having fun with friends or strangers.
+
+## Key Features
+
+- 1v1 Real-Time Battles: Users enter a virtual arena to compete head-to-head doing push-ups.
+
+- AI-Based Push-Up Counter: A Python-powered model processes webcam input to detect and count push-ups.
+
+- Live Video Streaming: Peer-to-peer video communication (via WebRTC) ensures low-latency, real-time feedback.
+
+- Responsive UI: Built with Next.js and TypeScript, ensuring a fast and user-friendly experience.
+
+- Matchmaking & Room System: Flask-SocketIO backend handles matchmaking and communication between users.
+
+# Tech Stack
+
+- 🚀 Frontend: Developed using **Next.js** and **TypeScript**, styled with **Tailwind CSS** to deliver a responsive, modern, and user-friendly user experience.
+
+- 🧠 Backend: Built with **Python Flask** and **Flask-SocketIO** to handle real-time communication and matchmaking between users.
+
+- 🎥 Video Streaming: Utilizes **WebRTC** for low-latency, peer-to-peer video connections between players.
 
 ## Getting Started
 
@@ -26,10 +48,10 @@ cd BattleUP
 
 ### Client Setup
 
-3. **Navigate to the `client` folder**
+3. **Navigate to the `frontend` folder**
 
 ```bash
-cd client
+cd frontend
 ```
 
 4. **Install client dependencies**
@@ -46,13 +68,13 @@ npm run dev
 
 ### Server Setup
 
-6. **Navigate to the `server` folder**
+6. **Navigate to the `backend` folder**
 
 ```bash
-cd server
+cd backend
 ```
 
-7. **Set up python virtual environment (ensure you have python installed)**
+7. **Set up python virtual environment**
 
 ```bash
 python -m venv venv
@@ -81,5 +103,5 @@ pip install -r requirements.txt
 10. **Run the server**
 
 ```bash
-python app.py
+python server.py
 ```
