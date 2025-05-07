@@ -2,9 +2,5 @@ flask
 flask-cors
 flask-socketio
 eventlet
-numpy
-scikit-learn
-pandas
-tensorflow
-matplotlib
-opencv-python
+python-dotenv
+gunicorn

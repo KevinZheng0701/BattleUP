@@ -7,6 +7,7 @@ import VideoCard from "@/components/VideoCard";
 import InstructionsBoard from "@/components/InstructionsBoard";
 import MatchResultModal from "@/components/MatchResultModal";
 import useAlert from "@/context/AlertContext";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
 type SignalData = {
   room: string;
@@ -58,7 +59,9 @@ export default function RoomPage() {
       // Check if room is correct on the backend
       const roomIsValid = await checkRoom();
       if (roomIsValid) {
-        socketRef.current = io("http://localhost:5001");
+        socketRef.current = io(API, {
+          transports: ["websocket"],
+        });
         setupConnection();
       } else {
         router.push("/");
@@ -80,7 +83,7 @@ export default function RoomPage() {
     // Verify if the room actually exists before setting up connection
     async function checkRoom() {
       try {
-        const response = await fetch("http://localhost:5001/api/check-room", {
+        const response = await fetch(`${API}/api/check-room`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ room: roomId }),
@@ -92,13 +95,12 @@ export default function RoomPage() {
         if (!data.exists) throw new Error("Room not found!");
         const status = data.status;
         if (status == "ended" || status == "disconnected") {
-          router.push("/");
-          throw new Error("Room disconnected or ended! Redirecting to home!");
+          throw new Error("Room disconnected or ended!");
         }
         setDuration(data.duration);
         return true;
       } catch (error) {
-        console.log(error);
+        showAlert("warning", String(error));
         return false;
       }
     }

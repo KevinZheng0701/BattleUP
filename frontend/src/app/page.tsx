@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import MatchSelectorModal from "../components/MatchSelectorModal";
 import InstructionsBoard from "@/components/InstructionsBoard";
 import useAlert from "@/context/AlertContext";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -44,7 +45,7 @@ export default function HomePage() {
   async function searchMatch(duration: number) {
     try {
       const seconds = duration * 60;
-      const response = await fetch("http://localhost:5001/api/find-room", {
+      const response = await fetch(`${API}/api/find-room`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, duration: seconds }),

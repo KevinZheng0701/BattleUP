@@ -97,7 +97,7 @@ python -m venv venv
 9. **Install server dependencies**
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 10. **Run the server**

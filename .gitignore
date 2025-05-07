@@ -31,7 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
 
 # vercel
 .vercel
@@ -49,8 +49,6 @@ next-env.d.ts
 # Ignore virtual environments
 /backend/venv/
 /backend/.venv/
-/backend/env/
-/backend/.env
 
 # Optional: ignore backend logs or local data
 /backend/*.log
