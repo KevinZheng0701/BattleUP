@@ -394,7 +394,7 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gradient-to-tr from-gray-950 via-gray-900 to-slate-900 p-4 text-center">
+    <div className="flex h-screen flex-col items-center overflow-y-auto bg-gradient-to-tr from-gray-950 via-gray-900 to-slate-900 p-4 text-center">
       <div className="flex w-full items-center justify-around">
         <h1 className="m-2 text-center text-lg font-bold text-amber-50 md:text-xl lg:mb-5 lg:text-2xl">
           {gameState === "waiting" ? (
@@ -417,7 +417,6 @@ export default function RoomPage() {
           Leave
         </button>
       </div>
-
       <div className="grid w-full grid-cols-1 gap-6 p-4 md:grid-cols-2">
         <VideoCard videoRef={localVideoRef} label="You" score={myScore} muted />
         <VideoCard

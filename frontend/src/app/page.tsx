@@ -70,7 +70,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="text-foreground flex h-screen min-h-screen flex-col items-center bg-gradient-to-b from-[#0e0b16] via-[#4c0033] to-[#1a1a40] text-center font-serif">
+    <div className="text-foreground flex h-screen flex-col items-center overflow-y-auto bg-gradient-to-b from-[#0e0b16] via-[#4c0033] to-[#1a1a40] text-center font-serif">
       <div className="my-5 flex items-center text-5xl font-bold md:mt-11 md:mb-7 lg:mt-12 lg:mb-8">
         <span className="inline-block bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-2xl text-transparent md:text-3xl lg:text-5xl">
           💪
