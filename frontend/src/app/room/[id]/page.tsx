@@ -419,8 +419,12 @@ export default function RoomPage() {
       </div>
 
       <div className="grid w-full grid-cols-1 gap-6 p-4 md:grid-cols-2">
-        <VideoCard videoRef={localVideoRef} label="You" muted />
-        <VideoCard videoRef={remoteVideoRef} label="Opponent" />
+        <VideoCard videoRef={localVideoRef} label="You" score={myScore} muted />
+        <VideoCard
+          videoRef={remoteVideoRef}
+          label="Opponent"
+          score={opponentScore}
+        />
       </div>
       <InstructionsBoard
         title="Prepare for Battle"
@@ -446,7 +450,7 @@ export default function RoomPage() {
               "Wait for the countdown to finish, then start doing push-ups. Every clean rep counts toward your score!",
           },
         ]}
-        backgroundClass="bg-gradient-to-r from-blue-900/35 via-blue-800/50 to-blue-900/35"
+        backgroundClass="bg-gradient-to-r from-blue-900/75 via-blue-800/50 to-blue-900/75"
       />
       {isModalOpen && (
         <MatchResultModal
