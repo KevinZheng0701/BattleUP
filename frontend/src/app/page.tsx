@@ -5,14 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import MatchSelectorModal from "../components/MatchSelectorModal";
 import InstructionsBoard from "@/components/InstructionsBoard";
-import useAlert from "@/context/AlertContext";
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
   const router = useRouter();
-  const { showAlert } = useAlert();
 
   // Assign a random user id when loaded to the page
   useEffect(() => {
@@ -43,30 +41,24 @@ export default function HomePage() {
 
   // Calls the backend to find a room
   async function searchMatch(duration: number) {
-    try {
-      const seconds = duration * 60;
-      const response = await fetch(`${API}/api/find-room`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, duration: seconds }),
-      });
+    const seconds = duration * 60;
+    const response = await fetch(`${API}/api/find-room`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, duration: seconds }),
+    });
+    const data = await response.json();
 
-      if (!response.ok) {
-        if (response.status === 400) {
-          showAlert("warning", "Invalid player id. Please refresh.", 3000);
-        } else {
-          showAlert("warning", "Failed to find room. Server error.", 3000);
-        }
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 403) {
+        throw new Error(data.message || "Request failed. Please try again.");
+      } else {
+        throw new Error("Failed to find room. Server error.");
       }
-
-      const data = await response.json();
-      const roomId = data.roomId;
-
-      // Redirect to room
-      router.push(`/room/${roomId}`);
-    } catch (error) {
-      console.log(error);
     }
+
+    const roomId = data.roomId;
+    router.push(`/room/${roomId}`); // Redirect to room
   }
 
   return (

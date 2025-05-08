@@ -41,9 +41,16 @@ export default function MatchSelectorModal({
     try {
       await onStart(durationSelected);
     } catch (error) {
-      console.log(error);
-      showAlert("error", "Failed to find match. Please try again.", 3000);
       setIsLoading(false);
+      if (error instanceof Error) {
+        showAlert(
+          "warning",
+          "Error: " + error.message || "Unknown error occurred.",
+          5000,
+        );
+      } else {
+        console.log(error);
+      }
     }
   }
 
@@ -61,16 +68,19 @@ export default function MatchSelectorModal({
           <DurationButton
             duration={1}
             onClick={selectMatch}
+            disabled={isLoading}
             selected={durationSelected === 1}
           />
           <DurationButton
             duration={3}
             onClick={selectMatch}
+            disabled={isLoading}
             selected={durationSelected === 3}
           />
           <DurationButton
             duration={5}
             onClick={selectMatch}
+            disabled={isLoading}
             selected={durationSelected === 5}
           />
         </div>

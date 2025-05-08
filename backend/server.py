@@ -18,7 +18,7 @@ app = Flask(__name__)
 allowed_origins = os.environ.get("ALLOWED_ORIGIN", "http://localhost:3000").split(",")
 CORS(app, origins=allowed_origins)
 
-# SocketIO setup with eventlet
+# SocketIO setup with gevent
 socketio = SocketIO(app, cors_allowed_origins=allowed_origins, async_mode="gevent")
 
 active_rooms = {}
@@ -109,7 +109,7 @@ def find_room():
 
     # If no id is given then return 400 response
     if not player:
-        return jsonify({'Error': 'Player ID is required'}), 400
+        return jsonify({'message': 'Player ID is required'}), 400
     
     with room_lock:
         # Ensure the player is not in another room by redirecting the client
@@ -118,7 +118,7 @@ def find_room():
             if player in sid_map:
                 # If the game didn't end the player will be redirected to the room
                 if info['status'] != "ended" and info['status'] != "rematch" and info['status'] != "disconnected":
-                    return jsonify({'roomId': room_id, 'status': info['status']})
+                    return jsonify({'message': "You're already in a session."}), 403
 
         # Search for an open room with the same duration
         open_active_rooms = [room_id for room_id, info in active_rooms.items() if len(info.get('sid_map', {})) == 1 and info['duration'] == duration and info['status'] == "waiting"]

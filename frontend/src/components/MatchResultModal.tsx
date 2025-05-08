@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ModalBackdrop from "./ModalBackdrop";
+import useAlert from "@/context/AlertContext";
 
 type MatchResultModalProp = {
   result: string;
@@ -26,9 +28,12 @@ export default function MatchResultModal({
   onRematch,
 }: MatchResultModalProp) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { showAlert } = useAlert();
 
   // Calls the backend to find a room
   async function searchMatch() {
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:5001/api/find-room", {
         method: "POST",
@@ -36,23 +41,30 @@ export default function MatchResultModal({
         body: JSON.stringify({ userId, duration }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        if (response.status === 400) {
-          console.log("Invalid player id.");
-          throw new Error("Invalid player id");
+        if (response.status === 400 || response.status === 403) {
+          throw new Error(data.message || "Request failed. Please try again.");
         } else {
-          console.log("Failed to find room.");
-          throw new Error("Failed to find room");
+          throw new Error("Failed to find room. Server error.");
         }
       }
-
-      const data = await response.json();
       const roomId = data.roomId;
 
       // Redirect to room
       router.push(`/room/${roomId}`);
     } catch (error) {
-      throw error;
+      setIsLoading(false);
+      if (error instanceof Error) {
+        showAlert(
+          "warning",
+          "Error: " + error.message || "Unknown error occurred.",
+          5000,
+        );
+        router.push("/");
+      } else {
+        console.log(error);
+      }
     }
   }
 
@@ -66,10 +78,14 @@ export default function MatchResultModal({
           <span className="text-base md:text-lg">vs</span>
           <h3 className="font-semibold">{opponentScore}</h3>
         </div>
+        <p className="text-base font-semibold text-orange-500">
+          {isLoading ? "Finding a match..." : ""}
+        </p>
         <div className="flex max-w-full min-w-3/5 flex-col justify-center gap-3 text-base md:text-lg">
           <button
             className="cursor-fist text-foreground rounded-lg bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 px-6 py-3 font-semibold shadow-lg transition duration-300 hover:brightness-125"
             onClick={searchMatch}
+            disabled={isLoading}
           >
             New Match
           </button>

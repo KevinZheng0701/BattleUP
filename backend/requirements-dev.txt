@@ -1,12 +1,4 @@
-# Core server
-flask
-flask-cors
-flask-socketio
-python-dotenv
-gunicorn
-gevent
-
-# AI, Data, and Dev
+-r requirements.txt
 numpy
 scikit-learn
 pandas
