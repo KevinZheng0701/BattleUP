@@ -2,8 +2,6 @@ import os
 import random
 import string
 import threading
-import eventlet
-eventlet.monkey_patch()
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, join_room, emit, leave_room
@@ -21,7 +19,7 @@ allowed_origins = os.environ.get("ALLOWED_ORIGIN", "http://localhost:3000").spli
 CORS(app, origins=allowed_origins)
 
 # SocketIO setup with eventlet
-socketio = SocketIO(app, cors_allowed_origins=allowed_origins, async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins=allowed_origins, async_mode="gevent")
 
 active_rooms = {}
 room_lock = threading.Lock()

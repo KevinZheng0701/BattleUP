@@ -1,8 +1,12 @@
+# Core server
 flask
 flask-cors
 flask-socketio
-eventlet
 python-dotenv
+gunicorn
+gevent
+
+# AI, Data, and Dev
 numpy
 scikit-learn
 pandas
