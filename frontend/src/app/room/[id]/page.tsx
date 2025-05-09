@@ -309,7 +309,7 @@ export default function RoomPage() {
   useEffect(() => {
     if (gameState !== "counting" && gameState !== "playing") return;
     const isCounting = gameState === "counting";
-    const initialTime = isCounting ? 10 : duration;
+    const initialTime = isCounting ? 20 : duration; // 20 seconds before game starting
     setTimer(initialTime);
     const interval = setInterval(() => {
       if (gameEndedRef.current) {

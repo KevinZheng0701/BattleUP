@@ -105,6 +105,10 @@ def on_end(data):
     with room_lock:
         active_rooms[room]['status'] = "ended"
 
+@app.route("/")
+def health_check():
+    return "Server is running!", 200
+
 @app.route('/api/find-room', methods=['POST'])
 def find_room():
     """Find a random empty room and if zero are available then create one"""
