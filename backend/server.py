@@ -60,6 +60,12 @@ def on_signal(data):
     room = data['room']
     emit('signal', data, room=room, include_self=False) # Send the message to the other client
 
+# Handle pushup message from the client
+@socketio.on('push_up')
+def on_push_up(data):
+    room = data['room']
+    emit('push_up', room=room, include_self=False) # Send the message to the other client
+
 # Handle rematch request message from the client
 @socketio.on('rematch')
 def on_rematch(data):

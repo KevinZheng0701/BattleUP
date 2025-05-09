@@ -6,6 +6,8 @@ import { io, Socket } from "socket.io-client";
 import VideoCard from "@/components/VideoCard";
 import InstructionsBoard from "@/components/InstructionsBoard";
 import MatchResultModal from "@/components/MatchResultModal";
+import PushUpCounter from "@/components/PushUpCounter";
+
 import useAlert from "@/context/AlertContext";
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
@@ -35,12 +37,16 @@ export default function RoomPage() {
   const [duration, setDuration] = useState<number>(-1);
   const [myScore, setMyScore] = useState<number>(0);
   const [opponentScore, setOpponentScore] = useState<number>(0);
+  const myScoreRef = useRef<number>(0);
+  const opponentScoreRef = useRef<number>(0);
   const [gameResult, setGameResult] = useState<
     "You Win!" | "Tied Game!" | "You Lost!" | ""
   >("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [disconnection, setDisconnection] = useState<boolean>(false);
   const [rematchRequested, setRematchRequest] = useState<boolean>(false); // State for whether a request is recieved from the other side
+
+  const [loadModal, setLoadModal] = useState<boolean>(false); // Detection Pose Model
 
   const [userId, setUserId] = useState<string>("");
   const params = useParams();
@@ -156,6 +162,7 @@ export default function RoomPage() {
             if (state === "connected") {
               peerConnection.current.onconnectionstatechange = null;
               setGameState("counting");
+              setLoadModal(true);
             }
           };
 
@@ -164,6 +171,13 @@ export default function RoomPage() {
 
           // Listen for signaling data
           socketRef.current?.on("signal", handleSignal);
+
+          // Listen for opponent push up
+          socketRef.current?.on("push_up", () => {
+            const newScore = opponentScoreRef.current + 1;
+            opponentScoreRef.current = newScore;
+            setOpponentScore(newScore);
+          });
 
           // Listen for rematch request
           socketRef.current?.on("rematch_request", () => {
@@ -357,6 +371,14 @@ export default function RoomPage() {
     }
   }
 
+  // Add score
+  function updateScore() {
+    socketRef.current?.emit("push_up", { room: roomId });
+    const newScore = myScoreRef.current + 1;
+    myScoreRef.current = newScore;
+    setMyScore(newScore);
+  }
+
   // Clean up of the game and leaves the room
   function leaveRoom() {
     cleanUpRoom();
@@ -367,9 +389,9 @@ export default function RoomPage() {
 
   // Determine the winner of the game
   function determineWinner() {
-    if (myScore > opponentScore) {
+    if (myScoreRef.current > opponentScoreRef.current) {
       setGameResult("You Win!");
-    } else if (myScore === opponentScore) {
+    } else if (myScoreRef.current === opponentScoreRef.current) {
       setGameResult("Tied Game!");
     } else {
       setGameResult("You Lost!");
@@ -418,7 +440,22 @@ export default function RoomPage() {
         </button>
       </div>
       <div className="grid w-full grid-cols-1 gap-6 p-4 md:grid-cols-2">
-        <VideoCard videoRef={localVideoRef} label="You" score={myScore} muted />
+        <div className="relative w-full">
+          <VideoCard
+            videoRef={localVideoRef}
+            label="You"
+            score={myScore}
+            muted
+          />
+          {loadModal && (
+            <PushUpCounter
+              videoRef={localVideoRef}
+              gameState={gameState}
+              onPushUpDetected={updateScore}
+            />
+          )}
+        </div>
+
         <VideoCard
           videoRef={remoteVideoRef}
           label="Opponent"
