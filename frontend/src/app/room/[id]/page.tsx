@@ -9,6 +9,8 @@ import MatchResultModal from "@/components/MatchResultModal";
 import PushUpCounter from "@/components/PushUpCounter";
 
 import useAlert from "@/context/AlertContext";
+const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME;
+const TURN_SECRET = process.env.NEXT_PUBLIC_TURN_SECRET;
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
 type SignalData = {
@@ -129,10 +131,46 @@ export default function RoomPage() {
           localStreamRef.current = stream;
           if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-          // Create a new peer connection
-          peerConnection.current = new RTCPeerConnection({
-            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-          });
+          // Default STUN servers
+          const defaultIceServers = [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+          ];
+
+          // Try to fetch Xirsys servers
+          let iceServers = [...defaultIceServers];
+          try {
+            const response = await fetch(
+              "https://global.xirsys.net/_turn/BattleUP",
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization:
+                    "Basic " + btoa(`${TURN_USERNAME}:${TURN_SECRET}`),
+                },
+                body: JSON.stringify({ format: "urls" }),
+              },
+            );
+
+            const data = await response.json();
+            const servers = data.v.iceServers;
+
+            const xirsysServers = servers.urls.map((url: string) => ({
+              urls: url,
+              username: servers.username,
+              credential: servers.credential,
+            }));
+
+            iceServers = [...defaultIceServers, ...xirsysServers];
+          } catch (error) {
+            console.log(
+              "Failed to fetch Xirsys TURN servers. Using default STUN only.",
+              error,
+            );
+          }
+
+          peerConnection.current = new RTCPeerConnection({ iceServers });
 
           // Add all local tracks to the connection
           stream.getTracks().forEach((track) => {
@@ -146,6 +184,12 @@ export default function RoomPage() {
                 room: roomId,
                 candidate: event.candidate,
               });
+            }
+            // Check if there is an issue with network
+            const state = peerConnection.current?.iceConnectionState;
+            if (state === "failed" || state === "disconnected") {
+              showAlert("danger", "ICE failed due to network issues.", 5000);
+              router.push("/");
             }
           };
 
