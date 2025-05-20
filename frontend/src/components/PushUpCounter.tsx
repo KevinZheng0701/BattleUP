@@ -31,9 +31,11 @@ export default function PushUpCounter({
   const gameStateRef = useRef<
     "waiting" | "setting" | "counting" | "playing" | "ended"
   >(gameState); // Game state
+  const shoulderRef = useRef<number>(-1); // Keep tracks of lowest shoulder position in down state
 
   const downThreshold = 90;
   const upThreshold = 160;
+  const shoulderThreshold = 60;
 
   useEffect(() => {
     gameStateRef.current = gameState; // Ensure game state is updated
@@ -96,6 +98,7 @@ export default function PushUpCounter({
     const get = (name: string) =>
       keypoints.find((k) => k.name === name && k.score && k.score > 0.5);
 
+    // Get the joints position
     const lS = get("left_shoulder");
     const lE = get("left_elbow");
     const lW = get("left_wrist");
@@ -103,18 +106,29 @@ export default function PushUpCounter({
     const rE = get("right_elbow");
     const rW = get("right_wrist");
 
+    // Check if a pushup is detected based on arm position and shoulder position
     if (lS && lE && lW && rS && rE && rW) {
       const leftAngle = calculateAngle(lS, lE, lW);
       const rightAngle = calculateAngle(rS, rE, rW);
-      const minAngle = Math.min(leftAngle, rightAngle);
+      if (Math.abs(leftAngle - rightAngle) > 20) return; // Ensure only two hand pushup is being done
 
-      if (pushUpRef.current === "up" && minAngle < downThreshold) {
+      const minAngle = Math.min(leftAngle, rightAngle);
+      if (
+        pushUpRef.current === "up" &&
+        minAngle > 60 &&
+        minAngle < downThreshold
+      ) {
         pushUpRef.current = "down";
+        shoulderRef.current = Math.max(lS.y, rS.y);
       }
 
       if (pushUpRef.current === "down" && minAngle > upThreshold) {
+        const shoulderDifference = shoulderRef.current - Math.min(lS.y, rS.y);
+        if (shoulderDifference >= shoulderThreshold) {
+          onPushUpDetected();
+        }
+        shoulderRef.current = -1;
         pushUpRef.current = "up";
-        onPushUpDetected();
       }
     }
 

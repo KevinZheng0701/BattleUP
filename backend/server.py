@@ -148,7 +148,7 @@ def find_room():
 
         # Search for an open room with the same duration
         open_active_rooms = [room_id for room_id, info in active_rooms.items() if len(info.get('sid_map', {})) == 1 and info['duration'] == duration and info['status'] == "waiting"]
-        
+
         # Join a random open room
         if open_active_rooms:
             selected_room = random.choice(open_active_rooms)
