@@ -60,7 +60,19 @@ cd frontend
 npm install
 ```
 
-5. **Run the client**
+5. **Set up client environment variables**
+
+```bash
+cp .env.example .env
+```
+
+Open .env and fill in the required values.
+
+6. **(Optional) Set up TURN servers**
+
+If you plan to use TURN servers for WebRTC connectivity, head over to Xirsys and generate a key. Insert the relevant credentials into your .env file.
+
+7. **Run the client**
 
 ```bash
 npm run dev
@@ -68,19 +80,27 @@ npm run dev
 
 ### Server Setup
 
-6. **Navigate to the `backend` folder**
+8. **Navigate to the `backend` folder**
 
 ```bash
 cd backend
 ```
 
-7. **Set up python virtual environment**
+9. **Set up server environment variables**
+
+```bash
+cp .env.example .env
+```
+
+Open .env and fill in the required values.
+
+10. **Set up python virtual environment**
 
 ```bash
 python -m venv venv
 ```
 
-8. **Activate the virtual environment**
+11. **Activate the virtual environment**
 
 - On macOS/Linux:
 
@@ -94,13 +114,13 @@ python -m venv venv
   venv\Scripts\activate
   ```
 
-9. **Install server dependencies**
+12. **Install server dependencies**
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-10. **Run the server**
+13. **Run the server**
 
 ```bash
 python server.py

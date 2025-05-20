@@ -56,9 +56,9 @@ export default function HomePage() {
         throw new Error("Failed to find room. Server error.");
       }
     }
-
+    // Redirect to room
     const roomId = data.roomId;
-    router.push(`/room/${roomId}`); // Redirect to room
+    router.push(`/room/${roomId}`);
   }
 
   return (

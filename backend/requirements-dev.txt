@@ -1,7 +1,4 @@
 -r requirements.txt
 numpy
-scikit-learn
 pandas
-tensorflow
 matplotlib
-opencv-python

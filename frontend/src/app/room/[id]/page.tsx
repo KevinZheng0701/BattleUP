@@ -7,8 +7,8 @@ import VideoCard from "@/components/VideoCard";
 import InstructionsBoard from "@/components/InstructionsBoard";
 import MatchResultModal from "@/components/MatchResultModal";
 import PushUpCounter from "@/components/PushUpCounter";
-
 import useAlert from "@/context/AlertContext";
+
 const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME;
 const TURN_SECRET = process.env.NEXT_PUBLIC_TURN_SECRET;
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
@@ -32,7 +32,7 @@ export default function RoomPage() {
 
   // Game state variables
   const [gameState, setGameState] = useState<
-    "waiting" | "counting" | "playing" | "ended"
+    "waiting" | "setting" | "counting" | "playing" | "ended"
   >("waiting");
   const gameEndedRef = useRef<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
@@ -205,7 +205,7 @@ export default function RoomPage() {
             const state = peerConnection.current.connectionState;
             if (state === "connected") {
               peerConnection.current.onconnectionstatechange = null;
-              setGameState("counting");
+              setGameState("setting");
               setLoadModal(true);
             }
           };
@@ -353,7 +353,7 @@ export default function RoomPage() {
   useEffect(() => {
     if (gameState !== "counting" && gameState !== "playing") return;
     const isCounting = gameState === "counting";
-    const initialTime = isCounting ? 20 : duration; // 20 seconds before game starting
+    const initialTime = isCounting ? 15 : duration; // 15 seconds before game starting
     setTimer(initialTime);
     const interval = setInterval(() => {
       if (gameEndedRef.current) {
@@ -361,7 +361,8 @@ export default function RoomPage() {
         return;
       }
       setTimer((prev) => {
-        if (prev <= 1) {
+        const nextTime = prev - 1;
+        if (nextTime <= 0) {
           clearInterval(interval);
           if (isCounting) {
             setGameState("playing");
@@ -371,9 +372,8 @@ export default function RoomPage() {
             determineWinner();
             setIsModalOpen(true);
           }
-          return 0;
         }
-        return prev - 1;
+        return nextTime;
       });
     }, 1000);
 
@@ -464,7 +464,9 @@ export default function RoomPage() {
       <div className="flex w-full items-center justify-around">
         <h1 className="m-2 text-center text-lg font-bold text-amber-50 md:text-xl lg:mb-5 lg:text-2xl">
           {gameState === "waiting" ? (
-            "Waiting..."
+            "Waiting for opponent..."
+          ) : gameState === "setting" ? (
+            "Setting up model..."
           ) : gameState === "counting" ? (
             <>
               Get ready in <span className="text-indigo-200">{timer}</span>{" "}
@@ -495,6 +497,9 @@ export default function RoomPage() {
             <PushUpCounter
               videoRef={localVideoRef}
               gameState={gameState}
+              onReady={() => {
+                setGameState("counting");
+              }}
               onPushUpDetected={updateScore}
             />
           )}

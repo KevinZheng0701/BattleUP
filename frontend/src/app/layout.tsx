@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BattleUP",
   description: "An online 1v1 pushup competition.",
+  icons: {
+    icon: "/battleup_logo.svg",
+  },
 };
 
 export default function RootLayout({

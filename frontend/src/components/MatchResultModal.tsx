@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ModalBackdrop from "./ModalBackdrop";
 import useAlert from "@/context/AlertContext";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
 
 type MatchResultModalProp = {
   result: string;
@@ -35,7 +36,7 @@ export default function MatchResultModal({
   async function searchMatch() {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5001/api/find-room", {
+      const response = await fetch(`${API}/api/find-room`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, duration }),
@@ -49,9 +50,8 @@ export default function MatchResultModal({
           throw new Error("Failed to find room. Server error.");
         }
       }
-      const roomId = data.roomId;
-
       // Redirect to room
+      const roomId = data.roomId;
       router.push(`/room/${roomId}`);
     } catch (error) {
       setIsLoading(false);

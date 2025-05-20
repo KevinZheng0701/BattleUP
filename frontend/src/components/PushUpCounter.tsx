@@ -13,22 +13,24 @@ import {
 
 type PushUpCounterProps = {
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  gameState: "waiting" | "counting" | "playing" | "ended";
+  gameState: "waiting" | "setting" | "counting" | "playing" | "ended";
+  onReady: () => void;
   onPushUpDetected: () => void;
 };
 
 export default function PushUpCounter({
   videoRef,
   gameState,
+  onReady,
   onPushUpDetected,
 }: PushUpCounterProps) {
   const isMountedRef = useRef<boolean>(true); // Close the detection if the component unmounts
   const canvasRef = useRef<HTMLCanvasElement | null>(null); // Canvas for showing the joints
   const detectorRef = useRef<PoseDetector | null>(null); // Reference the pose detector
   const pushUpRef = useRef<"up" | "down">("up");
-  const gameStateRef = useRef<"waiting" | "counting" | "playing" | "ended">(
-    gameState,
-  ); // Game state
+  const gameStateRef = useRef<
+    "waiting" | "setting" | "counting" | "playing" | "ended"
+  >(gameState); // Game state
 
   const downThreshold = 90;
   const upThreshold = 160;
@@ -61,6 +63,7 @@ export default function PushUpCounter({
         modelType: movenet.modelType.SINGLEPOSE_LIGHTNING,
       });
       detectorRef.current = detector;
+      onReady(); // Trigger the callback to start the countdown
     }
 
     loadModel();
@@ -80,7 +83,6 @@ export default function PushUpCounter({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
     }
-
     requestAnimationFrame(detectPose); // Schedule for the next frame
 
     canvas.width = video.videoWidth;
