@@ -30,6 +30,8 @@ Staying motivated during solo workouts can be difficult. Traditional fitness app
 
 - 🎥 Video Streaming: Utilizes **WebRTC** for low-latency, peer-to-peer video connections between players.
 
+- 🏋️ AI Tracking: Uses MoveNet for real-time joint detection to accurately count push-ups based on body movement.
+
 ## Getting Started
 
 1. **Clone the Repository**

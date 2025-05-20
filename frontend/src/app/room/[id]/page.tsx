@@ -334,13 +334,16 @@ export default function RoomPage() {
     // Handle when the opponent left the game
     function handleOpponentLeaving() {
       setDisconnection(true);
-      setIsModalOpen(true);
-      gameEndedRef.current = true;
-      setGameState("ended");
-      setTimer(0);
-      setGameResult("You Win!");
-      socketRef.current?.emit("game_ended", { room: roomId });
       showAlert("error", "Opponent has left the room.");
+      // If the game didn't end yet then show the result modal
+      if (!gameEndedRef.current) {
+        setIsModalOpen(true);
+        gameEndedRef.current = true;
+        setGameState("ended");
+        setTimer(0);
+        setGameResult("You Win!");
+        socketRef.current?.emit("game_ended", { room: roomId });
+      }
     }
 
     validateAndConnect();

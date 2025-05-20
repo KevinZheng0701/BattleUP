@@ -38,19 +38,14 @@ def on_join(data):
             return
 
         # Create the mapping of the player id to the connection
-        if 'sid_map' not in active_rooms[room]:
-            active_rooms[room]['sid_map'] = {}
-        active_rooms[room]['sid_map'][player_id] = request.sid
+        players_map = active_rooms[room]['players']
+        players_map[player_id]['sid'] = request.sid
 
-        room_players = len(active_rooms[room]['sid_map'])
+        players = list(players_map.keys())
         # Send role status back to the clients
-        if room_players == 2:
-            players = list(active_rooms[room]['sid_map'].keys())
-            offerer_id = players[0]
-            answerer_id = players[1]
-
-            offerer_sid = active_rooms[room]['sid_map'][offerer_id]
-            answerer_sid = active_rooms[room]['sid_map'][answerer_id]
+        if len(players) == 2 and all(players_map[player]['sid'] for player in players):
+            offerer_sid = players_map[players[0]]['sid']
+            answerer_sid = players_map[players[1]]['sid']
             emit('ready', 'offerer', room=offerer_sid)
             emit('ready', 'answerer', room=answerer_sid)
 
@@ -69,10 +64,10 @@ def on_ready(data):
         if room not in active_rooms:
             print("[Server] Error: Room not found!")
             return
-        if 'ready_players' not in active_rooms[room]:
-            active_rooms[room]['ready_players'] = set()
-        active_rooms[room]['ready_players'].add(player_id)
-        if len(active_rooms[room]['ready_players']) == 2:
+        
+        # Update the state of the player
+        active_rooms[room]['players'][player_id]['status'] = "ready"
+        if all(player['status'] == "ready" for player in active_rooms[room]['players'].values()):
             active_rooms[room]['status'] = "playing"
             emit('start', data, room=room) # Send the start signal for starting the game
 
@@ -130,36 +125,38 @@ def find_room():
     """Find a random empty room and if zero are available then create one"""
     # Get request data
     data = request.get_json()
-    player = data.get('userId')
+    player_id = data.get('userId')
     duration = data.get('duration')
 
     # If no id is given then return 400 response
-    if not player:
+    if not player_id:
         return jsonify({'message': 'Player ID is required'}), 400
     
     with room_lock:
         # Ensure the player is not in another room
         for room_id, info in active_rooms.items():
-            sid_map = info.get('sid_map', {})
-            if player in sid_map:
+            players = info['players']
+            if player_id in players:
                 # If the game didn't end yet, the player will be notified
-                if info['status'] != "ended" and info['status'] != "rematch" and info['status'] != "disconnected":
+                if info['status'] not in {"ended", "rematch", "disconnected"}:
                     return jsonify({'message': "You're already in a session."}), 403
 
         # Search for an open room with the same duration
-        open_active_rooms = [room_id for room_id, info in active_rooms.items() if len(info.get('sid_map', {})) == 1 and info['duration'] == duration and info['status'] == "waiting"]
-
+        open_active_rooms = [room_id for room_id, info in active_rooms.items() if len(info['players']) == 1 and info['duration'] == duration and info['status'] == "waiting"]
+        
         # Join a random open room
         if open_active_rooms:
             selected_room = random.choice(open_active_rooms)
             active_rooms[selected_room]['status'] = 'setting' # Update the status to be setting
+            active_rooms[selected_room]['players'][player_id] = {'status': 'waiting', 'sid': None}
             return jsonify({'roomId': selected_room, 'status': 'setting'})
         else:
             # Create a new open room if no active rooms are found
             new_room_id = generate_room_id()
             while new_room_id in active_rooms:
                 new_room_id = generate_room_id()
-            active_rooms[new_room_id] = {'status': 'waiting', 'duration': duration}
+            player_details = {player_id: {'status': 'waiting', 'sid': None}}
+            active_rooms[new_room_id] = {'status': 'waiting', 'duration': duration, 'players': player_details}
             return jsonify({'roomId': new_room_id, 'status': 'waiting', 'duration': duration})
 
 @app.route('/api/check-room', methods=['POST'])
@@ -181,21 +178,21 @@ def generate_room_id(length=6):
 
 def delete_room(room_id):
     """Function to delete a room"""
-    if room_id in active_rooms and len(active_rooms[room_id].get('sid_map', {})) == 0:
-        del active_rooms[room_id] # Delete the room if there are no more players in the room after the grace period
+    if room_id in active_rooms and len(active_rooms[room_id]['players']) == 0:
+        del active_rooms[room_id] # Delete the room if there are no more players in the room
 
 def process_leave_room(connection_sid):
     """Process the player leaving"""
     with room_lock:
         for room_id, info in list(active_rooms.items()):
-            sid_map = info.get('sid_map', {})
-            for player_id, sid in list(sid_map.items()):
-                if sid == connection_sid:
-                    del sid_map[player_id] # Remove player from the room
-                    if len(sid_map) == 1:
+            players = info['players']
+            for player_id, value in list(players.items()):
+                if value['sid'] == connection_sid:
+                    del players[player_id] # Remove player from the room
+                    if len(players) == 1:
                         emit('opponent_left', room=room_id, include_self=False) # Send disconnection status to the other client in the room
                         info['status'] = "disconnected"
-                    elif len(sid_map) == 0:
+                    elif len(players) == 0:
                         delete_room(room_id)
                     return
 

@@ -35,7 +35,7 @@ export default function PushUpCounter({
 
   const downThreshold = 90;
   const upThreshold = 160;
-  const shoulderThreshold = 60;
+  const shoulderThreshold = 75;
 
   useEffect(() => {
     gameStateRef.current = gameState; // Ensure game state is updated
