@@ -14,9 +14,8 @@ const config = {
         danger: "var(--danger)",
       },
       fontFamily: {
-        sans: "var(--font-sans)",
-        mono: "var(--font-mono)",
-        roboto: ["Roboto", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "monospace"],
       },
     },
   },

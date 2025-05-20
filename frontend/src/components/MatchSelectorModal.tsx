@@ -88,14 +88,14 @@ export default function MatchSelectorModal({
           <button
             onClick={closeModal}
             disabled={isLoading}
-            className="text-background flex-1 rounded-xl border-2 border-gray-200 bg-gray-200 px-6 py-3 font-[roboto] text-lg hover:border-gray-400 hover:bg-gray-300 md:text-xl lg:text-2xl"
+            className="text-background flex-1 rounded-xl border-2 border-gray-200 bg-gray-200 px-6 py-3 text-lg hover:border-gray-400 hover:bg-gray-300 md:text-xl lg:text-2xl"
           >
             Cancel
           </button>
           <button
             onClick={startMatchSearch}
             disabled={isLoading}
-            className="text-foreground cursor-fist flex-1 rounded-xl border-2 border-blue-600 bg-blue-600 px-6 py-3 font-[roboto] text-lg hover:border-blue-500 hover:bg-blue-700 md:text-xl lg:text-2xl"
+            className="text-foreground cursor-fist flex-1 rounded-xl border-2 border-blue-600 bg-blue-600 px-6 py-3 text-lg hover:border-blue-500 hover:bg-blue-700 md:text-xl lg:text-2xl"
           >
             Start
           </button>

@@ -216,6 +216,9 @@ export default function RoomPage() {
           // Listen for signaling data
           socketRef.current?.on("signal", handleSignal);
 
+          // Listen for start signal
+          socketRef.current?.on("start", () => setGameState("counting"));
+
           // Listen for opponent push up
           socketRef.current?.on("push_up", () => {
             const newScore = opponentScoreRef.current + 1;
@@ -497,9 +500,9 @@ export default function RoomPage() {
             <PushUpCounter
               videoRef={localVideoRef}
               gameState={gameState}
-              onReady={() => {
-                setGameState("counting");
-              }}
+              onReady={() =>
+                socketRef.current?.emit("ready", { room: roomId, userId })
+              }
               onPushUpDetected={updateScore}
             />
           )}

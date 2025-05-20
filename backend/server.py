@@ -60,6 +60,22 @@ def on_signal(data):
     room = data['room']
     emit('signal', data, room=room, include_self=False) # Send the message to the other client
 
+# Handle ready messages from the client
+@socketio.on('ready')
+def on_ready(data):
+    room = data['room']
+    player_id = data['userId']
+    with room_lock:
+        if room not in active_rooms:
+            print("[Server] Error: Room not found!")
+            return
+        if 'ready_players' not in active_rooms[room]:
+            active_rooms[room]['ready_players'] = set()
+        active_rooms[room]['ready_players'].add(player_id)
+        if len(active_rooms[room]['ready_players']) == 2:
+            active_rooms[room]['status'] = "playing"
+            emit('start', data, room=room) # Send the start signal for starting the game
+
 # Handle pushup message from the client
 @socketio.on('push_up')
 def on_push_up(data):
@@ -122,11 +138,11 @@ def find_room():
         return jsonify({'message': 'Player ID is required'}), 400
     
     with room_lock:
-        # Ensure the player is not in another room by redirecting the client
+        # Ensure the player is not in another room
         for room_id, info in active_rooms.items():
             sid_map = info.get('sid_map', {})
             if player in sid_map:
-                # If the game didn't end the player will be redirected to the room
+                # If the game didn't end yet, the player will be notified
                 if info['status'] != "ended" and info['status'] != "rematch" and info['status'] != "disconnected":
                     return jsonify({'message': "You're already in a session."}), 403
 
@@ -136,8 +152,8 @@ def find_room():
         # Join a random open room
         if open_active_rooms:
             selected_room = random.choice(open_active_rooms)
-            active_rooms[selected_room]['status'] = 'playing' # Update the status to be playing
-            return jsonify({'roomId': selected_room, 'status': 'playing'})
+            active_rooms[selected_room]['status'] = 'setting' # Update the status to be setting
+            return jsonify({'roomId': selected_room, 'status': 'setting'})
         else:
             # Create a new open room if no active rooms are found
             new_room_id = generate_room_id()
