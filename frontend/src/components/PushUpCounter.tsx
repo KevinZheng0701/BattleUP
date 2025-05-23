@@ -13,7 +13,13 @@ import {
 
 type PushUpCounterProps = {
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  gameState: "waiting" | "setting" | "counting" | "playing" | "ended";
+  gameState:
+    | "waiting"
+    | "setting"
+    | "counting"
+    | "playing"
+    | "ended"
+    | "disconnected";
   onReady: () => void;
   onPushUpDetected: () => void;
 };
@@ -29,7 +35,7 @@ export default function PushUpCounter({
   const detectorRef = useRef<PoseDetector | null>(null); // Reference the pose detector
   const pushUpRef = useRef<"up" | "down">("up");
   const gameStateRef = useRef<
-    "waiting" | "setting" | "counting" | "playing" | "ended"
+    "waiting" | "setting" | "counting" | "playing" | "ended" | "disconnected"
   >(gameState); // Game state
   const shoulderRef = useRef<number>(-1); // Keep tracks of lowest shoulder position in down state
 

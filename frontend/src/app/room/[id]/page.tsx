@@ -32,7 +32,7 @@ export default function RoomPage() {
 
   // Game state variables
   const [gameState, setGameState] = useState<
-    "waiting" | "setting" | "counting" | "playing" | "ended"
+    "waiting" | "setting" | "counting" | "playing" | "ended" | "disconnected"
   >("waiting");
   const gameEndedRef = useRef<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
@@ -47,6 +47,8 @@ export default function RoomPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [disconnection, setDisconnection] = useState<boolean>(false);
   const [rematchRequested, setRematchRequest] = useState<boolean>(false); // State for whether a request is recieved from the other side
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const leavingRef = useRef<boolean>(false);
 
   const [loadModal, setLoadModal] = useState<boolean>(false); // Detection Pose Model
 
@@ -55,6 +57,8 @@ export default function RoomPage() {
   const router = useRouter();
   const roomId = params.id as string;
   const { showAlert } = useAlert();
+
+  const idleTime = 20; // Seconds until the room closes after being idle
 
   useEffect(() => {
     let isActive = true;
@@ -131,7 +135,7 @@ export default function RoomPage() {
           localStreamRef.current = stream;
           if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-          // Default STUN servers
+          // Default STUN/TURN servers
           const defaultIceServers = [
             { urls: "stun:stun.l.google.com:19302" },
             { urls: "stun:stun1.l.google.com:19302" },
@@ -154,6 +158,14 @@ export default function RoomPage() {
             );
 
             const data = await response.json();
+            if (data.s === "error" && data.v === "bandwidth_limit_exceeded") {
+              showAlert(
+                "warning",
+                "Bandwidth limit exceeded. Falling back to STUN, but connection may be unreliable.",
+                4000,
+              );
+            }
+
             const servers = data.v.iceServers;
 
             const xirsysServers = servers.urls.map((url: string) => ({
@@ -228,7 +240,7 @@ export default function RoomPage() {
 
           // Listen for rematch request
           socketRef.current?.on("rematch_request", () => {
-            showAlert("info", "Rematch requested!");
+            showAlert("info", "Rematch requested!", 10000);
           });
 
           // Listen for opponent leaving
@@ -333,16 +345,24 @@ export default function RoomPage() {
 
     // Handle when the opponent left the game
     function handleOpponentLeaving() {
+      // If the current player is already leaving then ignore this event
+      if (leavingRef.current) return;
       setDisconnection(true);
-      showAlert("error", "Opponent has left the room.");
       // If the game didn't end yet then show the result modal
       if (!gameEndedRef.current) {
-        setIsModalOpen(true);
         gameEndedRef.current = true;
-        setGameState("ended");
+        socketRef.current?.emit("game_ended", { room: roomId });
+        setIsModalOpen(true);
+        setGameState("disconnected");
         setTimer(0);
         setGameResult("You Win!");
-        socketRef.current?.emit("game_ended", { room: roomId });
+        startRoomIdleTimeout(idleTime / 2);
+        showAlert(
+          "error",
+          `Opponent left. Room will close automatically in ${idleTime / 2} seconds.`,
+        );
+      } else {
+        showAlert("error", "Opponent has left the room.");
       }
     }
 
@@ -357,39 +377,52 @@ export default function RoomPage() {
   }, [roomId]);
 
   useEffect(() => {
-    if (gameState !== "counting" && gameState !== "playing") return;
-    const isCounting = gameState === "counting";
-    const initialTime = isCounting ? 15 : duration; // 15 seconds before game starting
+    if (gameState === "ended") {
+      // Game time ended so show results
+      gameEndedRef.current = true;
+      socketRef.current?.emit("game_ended", { room: roomId });
+      determineWinner();
+      setIsModalOpen(true);
+      startRoomIdleTimeout(idleTime);
+      showAlert(
+        "info",
+        `Waiting for rematch... Room will close automatically in ${idleTime} seconds.`,
+        10000,
+      );
+    } else if (gameState !== "counting" && gameState !== "playing") return;
+    const inPreparation = gameState === "counting";
+    const initialTime = inPreparation ? 15 : duration; // 15 seconds before game starting
     setTimer(initialTime);
     const interval = setInterval(() => {
-      if (gameEndedRef.current) {
-        clearInterval(interval);
-        return;
-      }
       setTimer((prev) => {
         const nextTime = prev - 1;
         if (nextTime <= 0) {
           clearInterval(interval);
-          if (isCounting) {
-            setGameState("playing");
+          if (inPreparation) {
+            setGameState("playing"); // Prepartion timer finish so start game
           } else {
-            socketRef.current?.emit("game_ended", { room: roomId });
             setGameState("ended");
-            determineWinner();
-            setIsModalOpen(true);
           }
         }
         return nextTime;
       });
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup
+    return () => {
+      clearInterval(interval);
+    }; // Cleanup
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState]);
 
   // Clean up the room
   function cleanUpRoom() {
     if (!socketRef.current) return;
+    // Clean up the timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     socketRef.current.emit("leave_room", { room: roomId });
     socketRef.current.removeAllListeners();
     socketRef.current.disconnect();
@@ -421,6 +454,22 @@ export default function RoomPage() {
     }
   }
 
+  // Start a timer for when the room is being idle
+  function startRoomIdleTimeout(duration: number) {
+    // Clean up previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    // Start a new time out
+    timeoutRef.current = setTimeout(() => {
+      if (gameEndedRef.current) {
+        showAlert("info", "Room expired.", 3000);
+        leaveRoom();
+      }
+    }, duration * 1000); // Leave room after some amount of time
+  }
+
   // Add score
   function updateScore() {
     socketRef.current?.emit("push_up", { room: roomId });
@@ -431,9 +480,8 @@ export default function RoomPage() {
 
   // Clean up of the game and leaves the room
   function leaveRoom() {
+    leavingRef.current = true;
     cleanUpRoom();
-
-    // Redirect to main page
     router.push("/");
   }
 
@@ -450,13 +498,14 @@ export default function RoomPage() {
 
   // Reset state variables for a new game
   function resetGame() {
+    gameEndedRef.current = false;
     setMyScore(0);
     setOpponentScore(0);
     setGameResult("");
     setRematchRequest(false);
     setIsModalOpen(false);
     setGameState("counting");
-    gameEndedRef.current = false;
+    showAlert("info", "Rematch starting...", 3000);
   }
 
   // Send a request to the backend for a rematch
